@@ -162,6 +162,20 @@ def update_database(compromised_users, url, username, password, plaintext, verbo
                                 tx.single()[0]
                                 )
                             )
+
+                        # if username has '$@' in it, it could be a computer account. mark such computer account as owned
+                        if "$@" in user["username"]:
+                            machine = user["username"].replace("$@", ".")
+                            tx = session.run(
+                                "match (c:Computer) where c.name=\"{0}\" set c.owned=True".format(
+                                    machine
+                                )
+                            )
+                            if verbose:
+                                print("Machine account {0} successfully marked as owned!".format(
+                                    machine
+                                )
+                            )
             except Exception as e:
                 print(e)
                 continue
